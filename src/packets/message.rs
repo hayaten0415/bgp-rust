@@ -10,6 +10,7 @@ use crate::error::{
     ConvertBgpMessageToBytesError, ConvertBytesToBgpMessageError,
 };
 use crate::packets::open::OpenMessage;
+use crate::packets::update::UpdateMessage;
 
 use super::{header, keepalive};
 
@@ -17,6 +18,7 @@ use super::{header, keepalive};
 pub enum Message {
     Open(OpenMessage),
     Keepalive(KeepaliveMessage),
+    Update(UpdateMessage),
 }
 
 impl TryFrom<BytesMut> for Message {
@@ -39,6 +41,9 @@ impl TryFrom<BytesMut> for Message {
             MessageType::Keepalive => {
                 Ok(Message::Keepalive(KeepaliveMessage::try_from(bytes)?))
             }
+            MessageType::Update => {
+                Ok(Message::Update(UpdateMessage::try_from(bytes)?))
+            }
         }
     }
 }
@@ -48,6 +53,7 @@ impl From<Message> for BytesMut {
         match message {
             Message::Open(open) => open.into(),
             Message::Keepalive(keepalive) => keepalive.into(),
+            Message::Update(update) => update.into(),
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::packets::{
-    open::OpenMessage, keepalive::KeepaliveMessage
+    open::OpenMessage, keepalive::KeepaliveMessage, update::UpdateMessage
 };
 
 /// BGPのRFC内8.1
@@ -14,7 +14,14 @@ pub enum Event {
     BgpOpen(OpenMessage),
     // MsgはMessageの省略形。BGPのRFC内での定義に従っている。
     KeepAliveMsg(KeepaliveMessage),
+    // BGPのRFC内での定義に従っている。
+    UpdateMsg(UpdateMessage),
     // StateがEstablishedに遷移したことを表す。
     // 存在するほうが実装が楽なので追加した本実装オリジナルのイベント
     Established,
+    // LocRib / AdjRibOut / AdjRibInが変わった時のイベント。
+    // 存在するほうが楽なので追加した。
+    LocRibChanged,
+    AdjRibOutChanged,
+    AdjRibInChanged,
 }

@@ -1,10 +1,13 @@
 use std::str::FromStr;
+use std::sync::Arc;
 use std::env;
 
 use bgprust::peer::Peer;
 use bgprust::config::Config;
+use bgprust::routing::LocRib;
 
 use tokio::time::{sleep, Duration};
+use tokio::sync::Mutex;
 
 #[tokio::main]
 async fn main() {
@@ -18,9 +21,15 @@ async fn main() {
         });
     let config = config.trim_end();
     let configs = vec![Config::from_str(&config).unwrap()];
+
+    let loc_rib = Arc::new(Mutex::new(
+        LocRib::new(&configs[0])
+            .await
+            .expect("LocRibの生成に失敗しました。"),
+    ));
     let mut peers: Vec<Peer> = configs
         .into_iter()
-        .map(Peer::new)
+        .map(|c| Peer::new(c, Arc::clone(&loc_rib)))
         .collect();
     for peer in &mut peers {
         peer.start();
